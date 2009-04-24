@@ -1,5 +1,10 @@
 Revision history for Perl extension Image::JpegCheck
 
+0.06
+
+        - fixed test code.
+          (no feature changes)
+
 0.05
 
         - added scalarref support
