@@ -4,14 +4,24 @@ use warnings;
 use 5.008001;
 use bytes;
 use Fcntl ':seek';
-our $VERSION = '0.04';
+use Carp ();
+our $VERSION = '0.05';
 our @ISA = qw/Exporter/;
 our @EXPORT = ('is_jpeg');
 
 sub is_jpeg {
     my ($file, ) = @_;
     if (ref $file) {
-        return Image::JpegCheck::_is_jpeg($file);
+        if (ref $file eq 'GLOB') {
+            return Image::JpegCheck::_is_jpeg($file);
+        } elsif (ref $file eq 'SCALAR') {
+            open my $fh, '<', $file or die $!;
+            return Image::JpegCheck::_is_jpeg($fh);
+        } elsif (ref $file eq 'Path::Class::File') {
+            return Image::JpegCheck::_is_jpeg($file->openr);
+        } else {
+            Carp::croak('is_jpeg requires file-glob or filename');
+        }
     } else {
         open my $fh, '<', $file or die $!;
         binmode $fh;
@@ -79,9 +89,30 @@ etc.But, I need tiny one. I want to use this module in the mod_perl =)
 
 Code is taken from L<Image::Size>, and optimized it.
 
+=head1 FUNCTIONS
+
+=over 4
+
+=item is_jpeg($stuff)
+
+is_jpeg($stuff) validates your jpeg.stuff is:
+
+    scalar:            filename
+    scalarref:         jpeg itself
+    file-glob:         file handle
+    Path::Class::File: file object
+
+=back
+
 =head1 AUTHOR
 
 Tokuhiro Matsuno E<lt>tokuhirom ah! gmail.comE<gt>
+
+=head1 THANKS TO
+
+kazeburo++
+
+yappo++
 
 =head1 SEE ALSO
 
