@@ -5,6 +5,7 @@ all_from 'lib/Image/JpegCheck.pm';
 tests 't/*.t';
 author_tests 'xt';
 
-build_requires 'Test::More';
+auto_set_repository;
+test_requires 'Test::More' => 0.92;
 auto_include;
 WriteAll;
