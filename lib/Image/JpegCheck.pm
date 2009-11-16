@@ -5,7 +5,7 @@ use 5.008001;
 use bytes;
 use Fcntl ':seek';
 use Carp ();
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 our @ISA = qw/Exporter/;
 our @EXPORT = ('is_jpeg');
 
@@ -37,6 +37,9 @@ use constant {
     SECTION_MARKER => "\xFF",
     SOI            => "\xFF\xD8",
     EOI            => "\xFF\xD9",
+    EOI_RE         => qr/\xFF\xD9\xFF*$/,
+    READ_SIZE      => 512,
+    BYTE_STUFFING  => "\xFF"x512,
 };
 
 sub _is_jpeg {
@@ -73,8 +76,25 @@ sub _check_eoi {
     my $fh = shift;
     return 0 if seek($fh, -2, SEEK_END) == 0;
     return 0 if read($fh, my $buf, 2)   != 2;
-    return 0 if $buf ne EOI;
+    return _skip_stuffing($fh) if $buf ne EOI;
     return 1; # success!
+}
+
+sub _skip_stuffing {
+    my $fh = shift;
+    my $seek = READ_SIZE;
+    my $size = tell($fh);
+    my $buf = '';
+    my $len;
+
+    while ($seek <= $size) {
+        return 0 if seek($fh, -$seek, SEEK_END) == 0;
+        return 0 if ($len = read($fh, my $rbuf, READ_SIZE)) < 0;
+        $buf = $rbuf . $buf;
+        $buf =~ s/\xff$//;
+        return 1 if $buf =~ EOI_RE;
+        $seek += $len;
+    }
 }
 
 1;
