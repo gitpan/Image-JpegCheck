@@ -12,8 +12,6 @@ inc/Module/Install/Metadata.pm
 inc/Module/Install/Repository.pm
 inc/Module/Install/Win32.pm
 inc/Module/Install/WriteAll.pm
-inc/Test/Builder/Module.pm
-inc/Test/More.pm
 lib/Image/JpegCheck.pm
 Makefile.PL
 MANIFEST			This list of files
@@ -25,7 +23,6 @@ t/02_path-class.t
 t/03_validate.t
 t/04_stuffing.t
 t/bar.jpg
-t/broken.jpg
 t/foo.jpg
 t/stuffing.jpg
 xt/01_podspell.t
